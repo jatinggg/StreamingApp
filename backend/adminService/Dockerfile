@@ -6,7 +6,7 @@ COPY adminService/package*.json ./
 RUN npm install --production
 
 COPY adminService/. ./
-COPY common ../common
+COPY common ./common
 
 ENV NODE_ENV=production
 EXPOSE 3003

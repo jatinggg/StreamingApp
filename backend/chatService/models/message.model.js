@@ -1,4 +1,4 @@
-const { mongoose } = require('../../common/db');
+const { mongoose } = require('../common/db');
 
 const messageSchema = new mongoose.Schema(
   {

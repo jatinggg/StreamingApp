@@ -6,7 +6,7 @@ COPY chatService/package*.json ./
 RUN npm install --production
 
 COPY chatService/. ./
-COPY common ../common
+COPY common ./common
 
 ENV NODE_ENV=production
 EXPOSE 3004
