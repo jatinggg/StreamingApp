@@ -1,8 +1,8 @@
 FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
+WORKDIR /app/authService
+COPY authService/package*.json ./
 RUN npm install --production
-COPY . .
-ENV NODE_ENV=production
+COPY authService/. ./
+COPY common ../common
 EXPOSE 3001
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]
