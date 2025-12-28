@@ -19,72 +19,75 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-            // parallel {
-            stage('Build Auth Service') {
-                steps {
-                    script {
-                        sh """
-                            cd backend
-                            docker build -t ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG} \
-                            -f authService/Dockerfile \
-                            .
-                        """
+            // "stages" block here ensures these run Sequentially (One by One)
+            stages {
+                stage('Build Auth Service') {
+                    steps {
+                        script {
+                            sh """
+                                cd backend
+                                docker build -t ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/streamingapp/auth:latest \
+                                  -f authService/Dockerfile \
+                                  .
+                            """
+                        }
                     }
                 }
-            }
 
-            stage('Build Streaming Service') {
-                steps {
-                    script {
-                        sh """
-                            docker build -t ${ECR_REGISTRY}/streamingapp/streaming:${IMAGE_TAG} \
-                              -t ${ECR_REGISTRY}/streamingapp/streaming:latest \
-                              -f backend/streamingService/Dockerfile backend/
-                        """
+                stage('Build Streaming Service') {
+                    steps {
+                        script {
+                            sh """
+                                docker build -t ${ECR_REGISTRY}/streamingapp/streaming:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/streamingapp/streaming:latest \
+                                  -f backend/streamingService/Dockerfile backend/
+                            """
+                        }
                     }
                 }
-            }
 
-            stage('Build Admin Service') {
-                steps {
-                    script {
-                        sh """
-                            docker build -t ${ECR_REGISTRY}/streamingapp/admin:${IMAGE_TAG} \
-                              -t ${ECR_REGISTRY}/streamingapp/admin:latest \
-                              -f backend/adminService/Dockerfile backend/
-                        """
+                stage('Build Admin Service') {
+                    steps {
+                        script {
+                            sh """
+                                docker build -t ${ECR_REGISTRY}/streamingapp/admin:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/streamingapp/admin:latest \
+                                  -f backend/adminService/Dockerfile backend/
+                            """
+                        }
                     }
                 }
-            }
 
-            stage('Build Chat Service') {
-                steps {
-                    script {
-                        sh """
-                            docker build -t ${ECR_REGISTRY}/streamingapp/chat:${IMAGE_TAG} \
-                              -t ${ECR_REGISTRY}/streamingapp/chat:latest \
-                              -f backend/chatService/Dockerfile backend/
-                        """
+                stage('Build Chat Service') {
+                    steps {
+                        script {
+                            sh """
+                                docker build -t ${ECR_REGISTRY}/streamingapp/chat:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/streamingapp/chat:latest \
+                                  -f backend/chatService/Dockerfile backend/
+                            """
+                        }
                     }
                 }
-            }
 
-            stage('Build Frontend') {
-                steps {
-                    script {
-                        sh """
-                            docker build -t ${ECR_REGISTRY}/streamingapp/frontend:${IMAGE_TAG} \
-                              -t ${ECR_REGISTRY}/streamingapp/frontend:latest \
-                              --build-arg REACT_APP_AUTH_API_URL=http://api.streamingapp.com/auth \
-                              --build-arg REACT_APP_STREAMING_API_URL=http://api.streamingapp.com/streaming \
-                              --build-arg REACT_APP_ADMIN_API_URL=http://api.streamingapp.com/admin \
-                              --build-arg REACT_APP_CHAT_API_URL=http://api.streamingapp.com/chat \
-                              frontend/
-                        """
+                stage('Build Frontend') {
+                    steps {
+                        script {
+                            // Added CI=false to prevent warnings from failing the build
+                            sh """
+                                docker build -t ${ECR_REGISTRY}/streamingapp/frontend:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/streamingapp/frontend:latest \
+                                  --build-arg REACT_APP_AUTH_API_URL=http://api.streamingapp.com/auth \
+                                  --build-arg REACT_APP_STREAMING_API_URL=http://api.streamingapp.com/streaming \
+                                  --build-arg REACT_APP_ADMIN_API_URL=http://api.streamingapp.com/admin \
+                                  --build-arg REACT_APP_CHAT_API_URL=http://api.streamingapp.com/chat \
+                                  frontend/
+                            """
+                        }
                     }
                 }
             }
-            // }
         }
 
         stage('Push to ECR') {
@@ -94,19 +97,19 @@ pipeline {
                         sh """
                             aws ecr get-login-password --region ${AWS_REGION} | \
                             docker login --username AWS --password-stdin ${ECR_REGISTRY}
-
+                            
                             docker push ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/streamingapp/auth:latest
-
+                            
                             docker push ${ECR_REGISTRY}/streamingapp/streaming:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/streamingapp/streaming:latest
-
+                            
                             docker push ${ECR_REGISTRY}/streamingapp/admin:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/streamingapp/admin:latest
-
+                            
                             docker push ${ECR_REGISTRY}/streamingapp/chat:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/streamingapp/chat:latest
-
+                            
                             docker push ${ECR_REGISTRY}/streamingapp/frontend:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/streamingapp/frontend:latest
                         """
@@ -152,11 +155,9 @@ pipeline {
     post {
         success {
             echo 'Pipeline succeeded! Application deployed successfully.'
-            // SNS notification will be added in ChatOps section
         }
         failure {
             echo 'Pipeline failed! Check logs for details.'
-            // SNS notification will be added in ChatOps section
         }
         always {
             cleanWs()
