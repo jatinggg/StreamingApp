@@ -19,7 +19,7 @@ pipeline {
         }
         
         stage('Build Docker Images') {
-            parallel {
+            //parallel {
                 stage('Build Auth Service') {
                     steps {
                         script {
@@ -80,7 +80,7 @@ pipeline {
                         }
                     }
                 }
-            }
+            //}
         }
         
         stage('Push to ECR') {
