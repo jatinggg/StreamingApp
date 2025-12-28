@@ -25,7 +25,7 @@ pipeline {
                         script {
                             sh """
                                 cd backend
-                                docker build -t ${ecrRegistry}/streamingapp/auth:${IMAGE_TAG} \
+                                docker build -t ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG} \
                                 -f authService/Dockerfile \
                                 .
                             """
