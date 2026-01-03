@@ -19,12 +19,13 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            stages {
+        stage('Build Docker Images in Parallel') {
+            parallel {
                 stage('Build Auth Service') {
                     steps {
                         script {
                             sh """
+                                echo "Building Auth Service..."
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:latest \
                                   -f backend/authService/Dockerfile \
@@ -38,6 +39,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                                echo "Building Streaming Service..."
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:latest \
                                   -f backend/streamingService/Dockerfile \
@@ -51,6 +53,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                                echo "Building Admin Service..."
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:latest \
                                   -f backend/adminService/Dockerfile \
@@ -64,6 +67,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                                echo "Building Chat Service..."
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:latest \
                                   -f backend/chatService/Dockerfile \
@@ -77,6 +81,7 @@ pipeline {
                     steps {
                         script {
                             sh """
+                                echo "Building Frontend..."
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest \
                                   --build-arg REACT_APP_AUTH_API_URL=http://api.streamingapp.com/auth \
@@ -97,8 +102,7 @@ pipeline {
                     sh """
                         echo "=== Verifying built images ==="
                         docker images | grep jatin-streamingapp || echo "No images found with jatin-streamingapp prefix"
-                        echo "=== All Docker images ==="
-                        docker images
+                        echo "=== Verification complete ==="
                     """
                 }
             }
@@ -182,4 +186,3 @@ pipeline {
             cleanWs()
         }
     }
-}
