@@ -1,0 +1,42 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.chatService.name }}
+  labels:
+    app: {{ .Values.chatService.name }}
+spec:
+  replicas: {{ .Values.chatService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.chatService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.chatService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.chatService.name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.prefix }}/chat:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.chatService.port }}
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.env.NODE_ENV }}
+        - name: PORT
+          value: "{{ .Values.chatService.port }}"
+        resources:
+          {{- toYaml .Values.chatService.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.chatService.name }}
+spec:
+  selector:
+    app: {{ .Values.chatService.name }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.chatService.port }}
+    targetPort: {{ .Values.chatService.port }}
+  type: ClusterIP

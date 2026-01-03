@@ -1,0 +1,84 @@
+﻿# Default values for streamingapp
+image:
+  registry: 975050024946.dkr.ecr.eu-west-2.amazonaws.com
+  prefix: jatin-streamingapp
+  tag: "latest"
+  pullPolicy: Always
+
+# Auth Service Configuration
+authService:
+  name: auth-service
+  replicaCount: 2
+  port: 3001
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Streaming Service Configuration
+streamingService:
+  name: streaming-service
+  replicaCount: 2
+  port: 3002
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Admin Service Configuration
+adminService:
+  name: admin-service
+  replicaCount: 2
+  port: 3003
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Chat Service Configuration
+chatService:
+  name: chat-service
+  replicaCount: 2
+  port: 3004
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Frontend Configuration
+frontend:
+  name: frontend
+  replicaCount: 2
+  port: 80
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+  host: api.streamingapp.com
+
+# Environment variables
+env:
+  NODE_ENV: production

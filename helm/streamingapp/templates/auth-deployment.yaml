@@ -1,0 +1,42 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.authService.name }}
+  labels:
+    app: {{ .Values.authService.name }}
+spec:
+  replicas: {{ .Values.authService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.authService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.authService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.authService.name }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.prefix }}/auth:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.authService.port }}
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.env.NODE_ENV }}
+        - name: PORT
+          value: "{{ .Values.authService.port }}"
+        resources:
+          {{- toYaml .Values.authService.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.authService.name }}
+spec:
+  selector:
+    app: {{ .Values.authService.name }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.authService.port }}
+    targetPort: {{ .Values.authService.port }}
+  type: ClusterIP
