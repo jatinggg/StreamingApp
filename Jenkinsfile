@@ -101,7 +101,7 @@ pipeline {
                 script {
                     sh """
                         echo "=== Verifying built images ==="
-                        docker images | grep jatin-streamingapp || echo "No images found with jatin-streamingapp prefix"
+                        docker images | grep jatin-streamingapp || echo "No images found"
                         echo "=== Verification complete ==="
                     """
                 }
@@ -140,39 +140,6 @@ pipeline {
                 }
             }
         }
-
-        /*
-        stage('Update Helm Values') {
-            steps {
-                script {
-                    sh """
-                        sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|g' helm/streamingapp/values.yaml
-                        git config user.email "jenkins@streamingapp.com"
-                        git config user.name "Jenkins CI"
-                        git add helm/streamingapp/values.yaml
-                        git commit -m "Update image tags to ${IMAGE_TAG}" || true
-                    """
-                }
-            }
-        }
-
-        stage('Deploy to EKS') {
-            steps {
-                script {
-                    withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
-                        sh """
-                            aws eks update-kubeconfig --name streamingapp-cluster --region ${AWS_REGION}
-                            helm upgrade --install streamingapp ./helm/streamingapp \
-                              --namespace production \
-                              --create-namespace \
-                              --set image.tag=${IMAGE_TAG} \
-                              --wait --timeout 10m
-                        """
-                    }
-                }
-            }
-        }
-        */
     }
 
     post {
@@ -186,3 +153,4 @@ pipeline {
             cleanWs()
         }
     }
+}
