@@ -98,20 +98,20 @@ pipeline {
                             aws ecr get-login-password --region ${AWS_REGION} | \
                             docker login --username AWS --password-stdin ${ECR_REGISTRY}
                             
-                            docker push ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/streamingapp/auth:latest
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/auth:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/auth:latest
                             
-                            docker push ${ECR_REGISTRY}/streamingapp/streaming:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/streamingapp/streaming:latest
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/streaming:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/streaming:latest
                             
-                            docker push ${ECR_REGISTRY}/streamingapp/admin:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/streamingapp/admin:latest
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/admin:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/admin:latest
                             
-                            docker push ${ECR_REGISTRY}/streamingapp/chat:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/streamingapp/chat:latest
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/chat:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/chat:latest
                             
-                            docker push ${ECR_REGISTRY}/streamingapp/frontend:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/streamingapp/frontend:latest
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/frontend:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/jatin-streamingapp/frontend:latest
                         """
                     }
                 }
@@ -163,4 +163,4 @@ pipeline {
             cleanWs()
         }
     }
-}
+}   
