@@ -20,17 +20,15 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-            // "stages" block here ensures these run Sequentially (One by One)
             stages {
                 stage('Build Auth Service') {
                     steps {
                         script {
                             sh """
-                                cd backend
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:latest \
-                                  -f authService/Dockerfile \
-                                  .
+                                  -f backend/authService/Dockerfile \
+                                  backend/
                             """
                         }
                     }
@@ -42,7 +40,8 @@ pipeline {
                             sh """
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:latest \
-                                  -f backend/streamingService/Dockerfile backend/
+                                  -f backend/streamingService/Dockerfile \
+                                  backend/
                             """
                         }
                     }
@@ -54,7 +53,8 @@ pipeline {
                             sh """
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:latest \
-                                  -f backend/adminService/Dockerfile backend/
+                                  -f backend/adminService/Dockerfile \
+                                  backend/
                             """
                         }
                     }
@@ -66,7 +66,8 @@ pipeline {
                             sh """
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:latest \
-                                  -f backend/chatService/Dockerfile backend/
+                                  -f backend/chatService/Dockerfile \
+                                  backend/
                             """
                         }
                     }
@@ -75,7 +76,6 @@ pipeline {
                 stage('Build Frontend') {
                     steps {
                         script {
-                            // Added CI=false to prevent warnings from failing the build
                             sh """
                                 docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG} \
                                   -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest \
@@ -91,6 +91,19 @@ pipeline {
             }
         }
 
+        stage('Verify Images Built') {
+            steps {
+                script {
+                    sh """
+                        echo "=== Verifying built images ==="
+                        docker images | grep jatin-streamingapp || echo "No images found with jatin-streamingapp prefix"
+                        echo "=== All Docker images ==="
+                        docker images
+                    """
+                }
+            }
+        }
+
         stage('Push to ECR') {
             steps {
                 script {
@@ -99,18 +112,23 @@ pipeline {
                             aws ecr get-login-password --region ${AWS_REGION} | \
                             docker login --username AWS --password-stdin ${ECR_REGISTRY}
                             
+                            echo "Pushing auth service..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/auth:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/auth:latest
                             
+                            echo "Pushing streaming service..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/streaming:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/streaming:latest
                             
+                            echo "Pushing admin service..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/admin:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/admin:latest
                             
+                            echo "Pushing chat service..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/chat:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/chat:latest
                             
+                            echo "Pushing frontend..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest
                         """
@@ -164,4 +182,4 @@ pipeline {
             cleanWs()
         }
     }
-}   
+}
