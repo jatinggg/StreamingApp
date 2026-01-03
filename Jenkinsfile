@@ -5,6 +5,7 @@ pipeline {
         AWS_REGION       = 'eu-west-2'
         AWS_ACCOUNT_ID   = credentials('jatin_aws_account_id')
         ECR_REGISTRY     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        APP_PREFIX       = 'jatin-streamingapp'
         S3_BUCKET        = credentials('jatin-streamingapp-28122025')
         IMAGE_TAG        = "${BUILD_NUMBER}"
         GIT_COMMIT_SHORT = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
@@ -26,8 +27,8 @@ pipeline {
                         script {
                             sh """
                                 cd backend
-                                docker build -t ${ECR_REGISTRY}/streamingapp/auth:${IMAGE_TAG} \
-                                  -t ${ECR_REGISTRY}/streamingapp/auth:latest \
+                                docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/${APP_PREFIX}/auth:latest \
                                   -f authService/Dockerfile \
                                   .
                             """
@@ -39,8 +40,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                                docker build -t ${ECR_REGISTRY}/streamingapp/streaming:${IMAGE_TAG} \
-                                  -t ${ECR_REGISTRY}/streamingapp/streaming:latest \
+                                docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/${APP_PREFIX}/streaming:latest \
                                   -f backend/streamingService/Dockerfile backend/
                             """
                         }
@@ -51,8 +52,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                                docker build -t ${ECR_REGISTRY}/streamingapp/admin:${IMAGE_TAG} \
-                                  -t ${ECR_REGISTRY}/streamingapp/admin:latest \
+                                docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/${APP_PREFIX}/admin:latest \
                                   -f backend/adminService/Dockerfile backend/
                             """
                         }
@@ -63,8 +64,8 @@ pipeline {
                     steps {
                         script {
                             sh """
-                                docker build -t ${ECR_REGISTRY}/streamingapp/chat:${IMAGE_TAG} \
-                                  -t ${ECR_REGISTRY}/streamingapp/chat:latest \
+                                docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/${APP_PREFIX}/chat:latest \
                                   -f backend/chatService/Dockerfile backend/
                             """
                         }
@@ -76,8 +77,8 @@ pipeline {
                         script {
                             // Added CI=false to prevent warnings from failing the build
                             sh """
-                                docker build -t ${ECR_REGISTRY}/streamingapp/frontend:${IMAGE_TAG} \
-                                  -t ${ECR_REGISTRY}/streamingapp/frontend:latest \
+                                docker build -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG} \
+                                  -t ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest \
                                   --build-arg REACT_APP_AUTH_API_URL=http://api.streamingapp.com/auth \
                                   --build-arg REACT_APP_STREAMING_API_URL=http://api.streamingapp.com/streaming \
                                   --build-arg REACT_APP_ADMIN_API_URL=http://api.streamingapp.com/admin \
@@ -98,20 +99,20 @@ pipeline {
                             aws ecr get-login-password --region ${AWS_REGION} | \
                             docker login --username AWS --password-stdin ${ECR_REGISTRY}
                             
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/auth:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/auth:latest
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/auth:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/auth:latest
                             
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/streaming:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/streaming:latest
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/streaming:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/streaming:latest
                             
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/admin:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/admin:latest
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/admin:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/admin:latest
                             
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/chat:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/chat:latest
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/chat:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/chat:latest
                             
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/frontend:${IMAGE_TAG}
-                            docker push ${ECR_REGISTRY}/jatin-streamingapp/frontend:latest
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest
                         """
                     }
                 }
