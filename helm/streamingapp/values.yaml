@@ -5,62 +5,68 @@ image:
   tag: "latest"
   pullPolicy: Always
 
+# GLOBAL Environment Variables (Shared by all services)
+env:
+  NODE_ENV: production
+  MONGO_URI: "mongodb+srv://37m2d_db_user:HHqh2jBXzgDpOGxR@cluster0.sotuoqx.mongodb.net/jatin-streamingApp?appName=Cluster0"
+  JWT_SECRET: "mysecretkey123"
+
 # Auth Service Configuration
 authService:
   name: auth-service
-  replicaCount: 2
+  replicaCount: 1
   port: 3001
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256"
+      cpu: "300"
 
 # Streaming Service Configuration
 streamingService:
   name: streaming-service
-  replicaCount: 2
+  replicaCount: 1
   port: 3002
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "300m"
 
 # Admin Service Configuration
 adminService:
   name: admin-service
-  replicaCount: 2
+  replicaCount: 1
   port: 3003
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "300m"
 
 # Chat Service Configuration
 chatService:
   name: chat-service
-  replicaCount: 2
+  replicaCount: 1
   port: 3004
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "300m"
 
 # Frontend Configuration
 frontend:
   name: frontend
-  replicaCount: 2
+  replicaCount: 1
   port: 80
   resources:
     requests:
@@ -68,7 +74,7 @@ frontend:
       cpu: "100m"
     limits:
       memory: "256Mi"
-      cpu: "200m"
+      cpu: "300m"
 
 # Ingress Configuration
 ingress:
