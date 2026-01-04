@@ -8,8 +8,9 @@ image:
 # GLOBAL Environment Variables (Shared by all services)
 env:
   NODE_ENV: production
-  MONGO_URI: "mongodb+srv://37m2d_db_user:HHqh2jBXzgDpOGxR@cluster0.sotuoqx.mongodb.net/jatin-streamingApp?appName=Cluster0"
-  JWT_SECRET: "mysecretkey123"
+  # Use the internal DNS name of the mongo pod we just installed
+  MONGO_URI: "mongodb://mongodb.production.svc.cluster.local:27017/streamingapp"
+  JWT_SECRET: "changeme"
 
 # Auth Service Configuration
 authService:
