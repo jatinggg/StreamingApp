@@ -174,7 +174,7 @@ pipeline {
         success {
             script {
                 echo 'Pipeline succeeded!'
-                def topicArn = "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:jatin-jenkins-notifications"
+                def topicArn = "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:jatin-streamingapp-notifications"
                 
                 withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
                     sh """
