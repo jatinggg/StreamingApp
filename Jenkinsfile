@@ -146,24 +146,25 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
-                        sh """
-                            echo "Configuring kubectl for EKS cluster..."
-                            aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
-                            
-                            echo "Deploying application with Helm..."
-                            helm upgrade --install streamingapp ./helm/streamingapp \
-                              --namespace production \
-                              --create-namespace \
-                              --set image.tag=${IMAGE_TAG} \
-                              --wait --timeout 10m
-                            
-                            echo "Verifying deployment..."
-                            kubectl get pods -n production
-                            kubectl get svc -n production
-                            
-                            echo "Getting frontend URL..."
-                            kubectl get svc frontend -n production -o wide
-                        """
+                        withCredentials([
+                            string(credentialsId: 'mongo_uri_secret', variable: 'MONGO_URI'),
+                            string(credentialsId: 'jwt_secret_key', variable: 'JWT_SECRET')
+                        ]) {
+                            sh """
+                                echo "Configuring kubectl..."
+                                aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
+                                
+                                echo "Deploying with Helm..."
+                                # We pass the secrets dynamically using --set
+                                helm upgrade --install streamingapp ./helm/streamingapp \
+                                  --namespace production \
+                                  --create-namespace \
+                                  --set image.tag=${IMAGE_TAG} \
+                                  --set env.MONGO_URI='${MONGO_URI}' \
+                                  --set env.JWT_SECRET='${JWT_SECRET}' \
+                                  --wait --timeout 10m
+                            """
+                        }
                     }
                 }
             }

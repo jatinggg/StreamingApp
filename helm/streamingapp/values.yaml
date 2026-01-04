@@ -5,13 +5,6 @@ image:
   tag: "latest"
   pullPolicy: Always
 
-# GLOBAL Environment Variables (Shared by all services)
-env:
-  NODE_ENV: production
-  # Use the internal DNS name of the mongo pod we just installed
-  MONGO_URI: "mongodb://mongodb.production.svc.cluster.local:27017/streamingapp"
-  JWT_SECRET: "changeme"
-
 # Auth Service Configuration
 authService:
   name: auth-service
