@@ -22,8 +22,8 @@ authService:
       memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "256"
-      cpu: "300"
+      memory: "256Mi"
+      cpu: "300m"
 
 # Streaming Service Configuration
 streamingService:
