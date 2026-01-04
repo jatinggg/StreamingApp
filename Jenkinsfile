@@ -8,6 +8,7 @@ pipeline {
         APP_PREFIX       = 'jatin-streamingapp'
         S3_BUCKET        = credentials('jatin-streamingapp-28122025')
         IMAGE_TAG        = "${BUILD_NUMBER}"
+        EKS_CLUSTER_NAME = 'jatin-streamingapp-cluster'
         GIT_COMMIT_SHORT = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
     }
 
@@ -135,6 +136,33 @@ pipeline {
                             echo "Pushing frontend..."
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:${IMAGE_TAG}
                             docker push ${ECR_REGISTRY}/${APP_PREFIX}/frontend:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
+                        sh """
+                            echo "Configuring kubectl for EKS cluster..."
+                            aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${AWS_REGION}
+                            
+                            echo "Deploying application with Helm..."
+                            helm upgrade --install streamingapp ./helm/streamingapp \
+                              --namespace production \
+                              --create-namespace \
+                              --set image.tag=${IMAGE_TAG} \
+                              --wait --timeout 10m
+                            
+                            echo "Verifying deployment..."
+                            kubectl get pods -n production
+                            kubectl get svc -n production
+                            
+                            echo "Getting frontend URL..."
+                            kubectl get svc frontend -n production -o wide
                         """
                     }
                 }
