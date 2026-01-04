@@ -172,10 +172,34 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline succeeded! Application deployed successfully.'
+            script {
+                echo 'Pipeline succeeded!'
+                def topicArn = "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:jatin-jenkins-notifications"
+                
+                withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
+                    sh """
+                        aws sns publish \
+                        --topic-arn ${topicArn} \
+                        --message "✅ Deployment Success: Build #${env.BUILD_NUMBER} for ${env.JOB_NAME} deployed to EKS." \
+                        --subject "Jenkins Build Success"
+                    """
+                }
+            }
         }
         failure {
-            echo 'Pipeline failed! Check logs for details.'
+            script {
+                echo 'Pipeline failed!'
+                def topicArn = "arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:jatin-jenkins-notifications"
+
+                withAWS(credentials: 'JATIN_AWS_CRED', region: "${AWS_REGION}") {
+                    sh """
+                        aws sns publish \
+                        --topic-arn ${topicArn} \
+                        --message "❌ Deployment Failed: Build #${env.BUILD_NUMBER} for ${env.JOB_NAME}. Check logs." \
+                        --subject "Jenkins Build Failure"
+                    """
+                }
+            }
         }
         always {
             cleanWs()
